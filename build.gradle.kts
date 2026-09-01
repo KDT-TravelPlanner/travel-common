@@ -6,7 +6,9 @@ plugins {
 }
 
 group = "com.ktcloud.travelplanner"
-version = "0.1.0-SNAPSHOT"
+version = providers.gradleProperty("releaseVersion")
+	.orElse("0.1.0-SNAPSHOT")
+	.get()
 description = "Shared web contracts and request logging for Travel Planner services"
 
 java {
@@ -52,6 +54,21 @@ tasks.withType<Test> {
 }
 
 publishing {
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/protove/travel-common")
+			credentials {
+				username = providers.gradleProperty("gpr.user")
+					.orElse(providers.environmentVariable("GITHUB_ACTOR"))
+					.orNull
+				password = providers.gradleProperty("gpr.key")
+					.orElse(providers.environmentVariable("GITHUB_TOKEN"))
+					.orNull
+			}
+		}
+	}
+
 	publications {
 		create<MavenPublication>("mavenJava") {
 			artifactId = "travel-common"
